@@ -158,7 +158,7 @@ int main()
         switch (opcao) {
         
         case 1:
-            cadastrar(&tabela); //todo
+            cadastrar(&tabela);
             break;
         
         case 2:
@@ -407,13 +407,29 @@ void cadastrar(Hashtable *tabela) {
 
 
     // Procura onde inserir
-    printf("posicao: %d\n", hash(novo.pk, tabela->tam));  //!?!
+    int posicao = hash(novo.pk, tabela->tam);
+    // printf("posicao: %d\n", posicao);  //!?!
 
-
+    if (tabela->v[posicao].estado == LIVRE) {   /* ESTÁ LIVRE */
+        strcpy(tabela->v[posicao].pk, novo.pk);
+        tabela->v[posicao].estado = OCUPADO;
+        printf(REGISTRO_INSERIDO, novo.pk, 0);
+    }
+    else {  /* NÃO ESTÁ LIVRE */
+        int nColisoes = 0;
+        // Procura uma posição para inserir
+        while (tabela->v[posicao].estado == OCUPADO || tabela->v[posicao].estado == REMOVIDO) {
+            posicao++;
+            nColisoes++;
+            if (posicao == tabela->tam)
+                posicao = 0;
+        }
+        strcpy(tabela->v[posicao].pk, novo.pk);
+        tabela->v[posicao].estado = OCUPADO;
+        printf(REGISTRO_INSERIDO, novo.pk, nColisoes);
+    }
 
 
 	nregistros++;
-    
-
 
 }

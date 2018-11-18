@@ -1,0 +1,2 @@
+(./A < CasosA/0.in) > A.out
+diff A.out CasosA/0.out
