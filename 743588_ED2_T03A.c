@@ -171,7 +171,7 @@ int main()
         
         case 3:
             printf(INICIO_BUSCA);
-            // buscar(tabela); //todo
+            buscar(tabela); //todo
             break;
         
         case 4:
@@ -230,32 +230,59 @@ short hash(const char *chave, int tam) {
     return resultado % tam;
 }
 
+/* Recupera o registro no ARQUIVO de dados e retorna os dados na struct Produto */
+Produto recuperar_registro(int rrn)
+{
+    char temp[193], *p;
+    strncpy(temp, ARQUIVO + ((rrn)*192), 192);
+    temp[192] = '\0';
+    Produto j;
 
+	// Recebe os dados da string temp retirada do ARQUIVO de dados em determinado RRN
+	p = strtok(temp, "@");
+	strcpy(j.pk, p);
+	p = strtok(NULL, "@");
+	strcpy(j.nome, p);
+	p = strtok(NULL, "@");
+	strcpy(j.marca, p);
+	p = strtok(NULL, "@");
+	strcpy(j.data, p);
+	p = strtok(NULL, "@");
+	strcpy(j.ano, p);
+	p = strtok(NULL, "@");
+	strcpy(j.preco, p);
+	p = strtok(NULL, "@");
+	strcpy(j.desconto, p);
+	p = strtok(NULL, "@");
+	strcpy(j.categoria, p);
+
+    return j;
+}
 
 /* Exibe o produto */
 int exibir_registro(int rrn)    //todo
 {
-    // if (rrn < 0)
-    //     return 0;
-    // float preco;
-    // int desconto;
-    // // Produto j = recuperar_registro(rrn); //todo
-    // char *cat, categorias[TAM_CATEGORIA];
-    // printf("%s\n", j.pk);
-    // printf("%s\n", j.nome);
-    // printf("%s\n", j.marca);
-    // printf("%s\n", j.data);
-    // printf("%s\n", j.ano);
-    // sscanf(j.desconto, "%d", &desconto);
-    // sscanf(j.preco, "%f", &preco);
-    // preco = preco * (100 - desconto);
-    // preco = ((int)preco) / (float)100;
-    // printf("%07.2f\n", preco);
-    // strncpy(categorias, j.categoria, strlen(j.categoria));
-    // for (cat = strtok(categorias, "|"); cat != NULL; cat = strtok(NULL, "|"))
-    //     printf("%s ", cat);
-    // printf("\n");
-    // return 1;
+    if (rrn < 0)
+        return 0;
+    float preco;
+    int desconto;
+    Produto j = recuperar_registro(rrn); //todo
+    char *cat, categorias[TAM_CATEGORIA];
+    printf("%s\n", j.pk);
+    printf("%s\n", j.nome);
+    printf("%s\n", j.marca);
+    printf("%s\n", j.data);
+    printf("%s\n", j.ano);
+    sscanf(j.desconto, "%d", &desconto);
+    sscanf(j.preco, "%f", &preco);
+    preco = preco * (100 - desconto);
+    preco = ((int)preco) / (float)100;
+    printf("%07.2f\n", preco);
+    strcpy(categorias, j.categoria);
+    for (cat = strtok(categorias, "|"); cat != NULL; cat = strtok(NULL, "|"))
+        printf("%s ", cat);
+    printf("\n");
+    return 1;
 }
 
 
@@ -344,6 +371,7 @@ void liberar_tabela(Hashtable *tabela) {
    ================================= INTERACAO COM O USUARIO ==================================
    ============================================================================================ */
 
+
 /***************************************** CADASTRO *********************************************/
 
 // Gera a chave primária 
@@ -411,25 +439,82 @@ void cadastrar(Hashtable *tabela) {
     // printf("posicao: %d\n", posicao);  //!?!
 
     if (tabela->v[posicao].estado == LIVRE) {   /* ESTÁ LIVRE */
-        strcpy(tabela->v[posicao].pk, novo.pk);
+        
+        // Marca posicao como ocupada
         tabela->v[posicao].estado = OCUPADO;
+        
+        // Insere os dados na posicao
+        strcpy(tabela->v[posicao].pk, novo.pk);
+        tabela->v[posicao].rrn = nregistros;
+        
+        // Imprime mensagem de sucesso
         printf(REGISTRO_INSERIDO, novo.pk, 0);
     }
     else {  /* NÃO ESTÁ LIVRE */
+        
         int nColisoes = 0;
+        
         // Procura uma posição para inserir
         while (tabela->v[posicao].estado == OCUPADO || tabela->v[posicao].estado == REMOVIDO) {
             posicao++;
             nColisoes++;
-            if (posicao == tabela->tam)
+            if (posicao == tabela->tam) // Garante a "circularidade"
                 posicao = 0;
         }
-        strcpy(tabela->v[posicao].pk, novo.pk);
+        
+        // Marca posicao como ocupada
         tabela->v[posicao].estado = OCUPADO;
+
+        // Insere os dados na posicao
+        strcpy(tabela->v[posicao].pk, novo.pk);
+        tabela->v[posicao].rrn = nregistros;
+        
+        // Imprime mensagem de sucesso
         printf(REGISTRO_INSERIDO, novo.pk, nColisoes);
     }
 
 
 	nregistros++;
+
+}
+
+/****************************************** BUSCA ***********************************************/
+
+void buscar(Hashtable tabela) {
+    
+    // Recebe a chave primária
+    char chave[TAM_PRIMARY_KEY];
+    scanf("%[^\n]s", chave);
+    getchar();
+
+    // Verifica se a tabela não está vazia
+    if (tabela.tam == 0) {
+        printf(REGISTRO_N_ENCONTRADO);
+        return;
+    }
+
+    // Calcula a posição inicial da busca pela função de hash
+    int posicao = hash(chave, tabela.tam);
+
+    // Começa pela posição da função hash (h(x))
+    if (strcmp(tabela.v[posicao].pk, chave) == 0) {
+        exibir_registro(tabela.v[posicao].rrn);
+        return;
+    }
+    // Se não encontrou:
+    else {
+        posicao++;
+        // Continua incrementando a posição até encontrar a chave ou encontrar uma célula LIVRE
+        while (tabela.v[posicao].estado != LIVRE) {
+            if (strcmp(tabela.v[posicao].pk, chave) == 0) {
+                exibir_registro(tabela.v[posicao].rrn);
+                return;
+            }
+            posicao++;
+        }
+    }
+
+    // Se saiu do while, não encontrou
+    printf(REGISTRO_N_ENCONTRADO);
 
 }
