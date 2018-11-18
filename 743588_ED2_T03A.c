@@ -58,7 +58,7 @@
 #define REGISTRO_INSERIDO           "Registro %s inserido com sucesso. Numero de colisoes: %d.\n\n"
 
 /* Registro do produto */
-typedef struct {
+typedef struct produto {
     char pk[TAM_PRIMARY_KEY];
     char nome[TAM_NOME];
     char marca[TAM_MARCA];
@@ -71,16 +71,16 @@ typedef struct {
 
 /* Registro da Tabela Hash
  * Contém o estado da posição, a chave primária e o RRN do respectivo registro */
-typedef struct {
+typedef struct chave {
     int estado;
     char pk[TAM_PRIMARY_KEY];
     int rrn;
 } Chave;
 
 /* Estrutura da Tabela Hash */
-typedef struct {
-    int tam;
-    Chave *v;
+typedef struct hashtable {
+    int tam;    // *tamanho da tabela
+    Chave *v;   // *vetor de chaves (tam)
 } Hashtable;
 
 /* Variáveis globais */
@@ -117,7 +117,11 @@ void liberar_tabela(Hashtable *tabela);
 
 /* <<< DECLARE AQUI OS PROTOTIPOS >>> */
 
+// Inicializacao da tabela hash
+void criar_tabela(Hashtable *tabela, int tam);
 
+// Impressao da tabela hash
+void imprimir_tabela(Hashtable tabela);
 
 
 
@@ -138,7 +142,7 @@ int main()
     tam = prox_primo(tam);
 
     Hashtable tabela;
-    // criar_tabela(&tabela, tam); //todo
+    criar_tabela(&tabela, tam);
     // if (carregarArquivo)
         // carregar_tabela(&tabela); //todo
 
@@ -176,11 +180,11 @@ int main()
         
         case 5:
             printf(INICIO_LISTAGEM);
-            // imprimir_tabela(tabela); //todo
+            imprimir_tabela(tabela);
             break;
         
         case 6:
-            // liberar_tabela(&tabela); //todo
+            liberar_tabela(&tabela);
             break;
         
         case 10:
@@ -197,22 +201,6 @@ int main()
 
 /* <<< IMPLEMENTE AQUI AS FUNCOES >>> */
 
-int eh_primo(int n) {
-    int cont = 0;
-    for (int i = 1; i <= n; i++) {
-        if (n % i == 0)
-            cont++;
-    }
-    if (cont == 2)
-        return 1;
-    else
-        return 0;
-}
-int prox_primo(int a) {
-    while (!eh_primo(a))
-        a++;
-    return a;
-}
 
 
 /* Recebe do usuário uma string simulando o arquivo completo. */
@@ -251,4 +239,85 @@ int exibir_registro(int rrn)    //todo
     //     printf("%s ", cat);
     // printf("\n");
     // return 1;
+}
+
+
+/* ============================================================================================
+   ================================ FUNCOES AUXILIARES ========================================
+   ============================================================================================ */
+
+
+int eh_primo(int n) {
+    int cont = 0;
+    for (int i = 1; i <= n; i++) {
+        if (n % i == 0)
+            cont++;
+    }
+    if (cont == 2)
+        return 1;
+    else
+        return 0;
+}
+int prox_primo(int a) {
+    while (!eh_primo(a))
+        a++;
+    return a;
+}
+
+
+/* ============================================================================================
+   =================================== INICIALIZACAO ==========================================
+   ============================================================================================ */
+
+
+void criar_tabela(Hashtable *tabela, int tam) {
+
+    // Inicializa o tamanho
+    tabela->tam = tam;
+
+    // Inicializa o vetor de Chave's
+    tabela->v = (Chave*) malloc(tam * sizeof(Chave)); 
+
+    // Inicializa cada Chave
+    for (int i = 0; i < tam; i++) {
+        tabela->v[i].estado = 0; // LIVRE
+        tabela->v[i].rrn = -1;
+        memset(tabela->v[i].pk, 0, TAM_PRIMARY_KEY);
+    }
+
+}
+
+
+/* ============================================================================================
+   ====================================== IMPRESSAO ===========================================
+   ============================================================================================ */
+
+void imprimir_tabela(Hashtable tabela) {
+
+    for (int i = 0; i < tabela.tam; i++) {
+
+        // Exibe o estado e a chave (caso OCUPADO)
+        if (tabela.v[i].estado == LIVRE) {
+            printf(POS_LIVRE, i);
+        }
+        else if (tabela.v[i].estado == OCUPADO) {
+            printf(POS_OCUPADA, i, tabela.v[i].pk);
+        }
+        else if (tabela.v[i].estado == REMOVIDO) {
+            printf(POS_REMOVIDA, i);
+        }
+
+    }
+
+}
+
+
+/* ============================================================================================
+   ====================================== LIBERACAO ===========================================
+   ============================================================================================ */
+
+void liberar_tabela(Hashtable *tabela) {
+
+    free(tabela->v);
+
 }
