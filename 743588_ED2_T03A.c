@@ -213,11 +213,24 @@ void carregar_arquivo()
     scanf("%[^\n]\n", ARQUIVO);
 }
 
-/*Auxiliar para a função de hash*/
-short f(char x)
-{
+/* ============================================================================================
+   ================================== FUNCOES DE HASH =========================================
+   ============================================================================================ */
+
+/***************************** Auxiliar para a função de hash ***********************************/
+short f(char x) {
     return (x < 59) ? x - 48 : x - 54;
 }
+
+/************************************ Funcao de Hash ********************************************/
+short hash(const char *chave, int tam) {
+    int resultado = 0;
+    for (int i = 0; i < 8; i++)
+        resultado += (i+1) * f(chave[i]);
+    return resultado % tam;
+}
+
+
 
 /* Exibe o produto */
 int exibir_registro(int rrn)    //todo
@@ -391,6 +404,12 @@ void cadastrar(Hashtable *tabela) {
 
 	// Coloca a entrada no ARQUIVO de dados
 	strcat(ARQUIVO, entrada);
+
+
+    // Procura onde inserir
+    printf("posicao: %d\n", hash(novo.pk, tabela->tam));  //!?!
+
+
 
 
 	nregistros++;
