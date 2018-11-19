@@ -482,6 +482,7 @@ void cadastrar(Hashtable *tabela) {
         int nColisoes = 0;
         // Procura uma posição para inserir
         while (tabela->v[posicao].estado != LIVRE) {
+            // Se o estado eh REMOVIDO, podemos inserir nessa posicao e sobrescrever os dados
             if (tabela->v[posicao].estado == REMOVIDO)
                 break;
             posicao++;
@@ -559,7 +560,7 @@ void buscar(Hashtable tabela) {
 
     // Busca na tabela
     ResultadoBusca resultadoBusca = buscar_posicao(chave, tabela);
-    if (resultadoBusca.rrn != -1) {
+    if (resultadoBusca.rrn != -1 && resultadoBusca.estado != REMOVIDO) {
         // Encontrou, exibe o registro
         exibir_registro(resultadoBusca.rrn);
     }
