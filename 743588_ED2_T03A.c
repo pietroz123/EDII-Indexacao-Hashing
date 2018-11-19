@@ -163,10 +163,10 @@ int main()
         
         case 2:
             printf(INICIO_ALTERACAO);
-            // if (alterar(tabela)) //todo
-            //     printf(SUCESSO);
-            // else
-            //     printf(FALHA);
+            if (alterar(tabela)) //todo
+                printf(SUCESSO);
+            else
+                printf(FALHA);
             break;
         
         case 3:
@@ -480,6 +480,28 @@ void cadastrar(Hashtable *tabela) {
 
 /****************************************** BUSCA ***********************************************/
 
+int buscar_privado(char *chave, Hashtable tabela) {
+    // Calcula a posição inicial da busca pela função de hash
+    int posicao = hash(chave, tabela.tam);
+
+    // Começa pela posição da função hash (h(x))
+    if (strcmp(tabela.v[posicao].pk, chave) == 0) {
+        return tabela.v[posicao].rrn;
+    }
+    // Se não encontrou:
+    else {
+        posicao++;
+        // Continua incrementando a posição até encontrar a chave ou encontrar uma célula LIVRE
+        while (tabela.v[posicao].estado != LIVRE) {
+            if (strcmp(tabela.v[posicao].pk, chave) == 0) {
+                return tabela.v[posicao].rrn;
+            }
+            posicao++;
+        }
+        // Se saiu do while, não encontrou
+        return -1;
+    }
+}
 void buscar(Hashtable tabela) {
     
     // Recebe a chave primária
@@ -493,28 +515,70 @@ void buscar(Hashtable tabela) {
         return;
     }
 
-    // Calcula a posição inicial da busca pela função de hash
-    int posicao = hash(chave, tabela.tam);
-
-    // Começa pela posição da função hash (h(x))
-    if (strcmp(tabela.v[posicao].pk, chave) == 0) {
-        exibir_registro(tabela.v[posicao].rrn);
-        return;
+    // Busca na tabela
+    int resultadoBusca = buscar_privado(chave, tabela);
+    if (resultadoBusca != -1) {
+        // Encontrou, exibe o registro
+        exibir_registro(resultadoBusca);
     }
-    // Se não encontrou:
     else {
-        posicao++;
-        // Continua incrementando a posição até encontrar a chave ou encontrar uma célula LIVRE
-        while (tabela.v[posicao].estado != LIVRE) {
-            if (strcmp(tabela.v[posicao].pk, chave) == 0) {
-                exibir_registro(tabela.v[posicao].rrn);
-                return;
-            }
-            posicao++;
-        }
+        // Nao encontrou
+        printf(REGISTRO_N_ENCONTRADO);
     }
 
-    // Se saiu do while, não encontrou
-    printf(REGISTRO_N_ENCONTRADO);
+}
+
+
+/**************************************** ALTERACAO *********************************************/
+
+int alterar(Hashtable tabela) {
+
+    char chave[TAM_PRIMARY_KEY];
+    char novoDesconto[TAM_DESCONTO];
+ 
+    // Recebe a chave primária
+    scanf("%[^\n]s", chave);
+    getchar();
+
+
+    // Busca se existe a chave primaria
+    int resultadoBusca = buscar_privado(chave, tabela);
+    if (resultadoBusca == -1) {
+        // Nao encontrou
+        printf(REGISTRO_N_ENCONTRADO);
+        return 0;
+    }
+
+
+    // Recebe o novo desconto
+    scanf("%[^\n]s", novoDesconto);
+    getchar();
+
+    // Verifica se o novo desconto é válido (está entre 0 e 100), caso contrário pede novamente
+    while (strcmp(novoDesconto, "100") > 0 || strcmp(novoDesconto, "000") <= 0) {
+        printf(CAMPO_INVALIDO);
+        scanf("%[^\n]s", novoDesconto);
+        getchar();
+    }
+
+
+    // Altera o desconto no ARQUIVO
+    char *p = ARQUIVO + 192*resultadoBusca;
+ 
+    int arr = 0;
+    while (*p && arr < 6) {
+        if (*p == '@')
+            arr++;
+        p++;
+    }
+ 
+    // Altera o desconto
+    *p = novoDesconto[0];
+    p++;
+    *p = novoDesconto[1];
+    p++;
+    *p = novoDesconto[2];
+ 
+    return 1;
 
 }
