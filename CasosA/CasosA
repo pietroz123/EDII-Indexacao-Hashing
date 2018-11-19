@@ -2,3 +2,5 @@
 diff A.out CasosA/0.out
 (./A < CasosA/1.in) > A.out
 diff A.out CasosA/1.out
+(./A < CasosA/2.in) > A.out
+diff A.out CasosA/2.out

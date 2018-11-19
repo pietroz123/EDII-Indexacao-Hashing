@@ -408,11 +408,6 @@ void ler_entrada(Produto *novo) {
 }
 void cadastrar(Hashtable *tabela) {
 
-    // Verifica se a tabela esta cheia
-    if (nregistros == tabela->tam) {
-        printf(ERRO_TABELA_CHEIA);
-        return;
-    }
 
     char entrada[193];
 	Produto novo;
@@ -421,6 +416,14 @@ void cadastrar(Hashtable *tabela) {
 	// Lê a entrada do usuário e gera a chave primária
 	ler_entrada(&novo);
 	gerar_chave(&novo);
+
+
+    // Verifica se a tabela esta cheia. Se estiver, retorna
+    if (nregistros == tabela->tam) {
+        printf(ERRO_TABELA_CHEIA);
+        return;
+    }
+
 
 	// Coloca os dados na string entrada[]
 	sprintf(entrada, "%s@%s@%s@%s@%s@%s@%s@%s@", novo.pk, novo.nome, novo.marca, novo.data, novo.ano, novo.preco, novo.desconto, novo.categoria);
