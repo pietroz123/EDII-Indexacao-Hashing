@@ -127,6 +127,9 @@ void criar_tabela(Hashtable *tabela, int tam);
 // Impressao da tabela hash
 void imprimir_tabela(Hashtable tabela);
 
+// Busca de uma chave na tabela hash
+int buscar_posicao(char *chave, Hashtable tabela);
+
 
 
 /* ==========================================================================
@@ -425,6 +428,14 @@ void cadastrar(Hashtable *tabela) {
     }
 
 
+    // Verifica se ja nao existe um registro com a chave primaria gerada
+    int resultadoBusca = buscar_posicao(novo.pk, *tabela);
+    if (resultadoBusca != -1) {
+        printf(ERRO_PK_REPETIDA, novo.pk);
+        return;
+    }
+
+
 	// Coloca os dados na string entrada[]
 	sprintf(entrada, "%s@%s@%s@%s@%s@%s@%s@%s@", novo.pk, novo.nome, novo.marca, novo.data, novo.ano, novo.preco, novo.desconto, novo.categoria);
 
@@ -458,7 +469,7 @@ void cadastrar(Hashtable *tabela) {
         int nColisoes = 0;
         
         // Procura uma posição para inserir
-        while (tabela->v[posicao].estado == OCUPADO || tabela->v[posicao].estado == REMOVIDO) {
+        while (tabela->v[posicao].estado == OCUPADO && tabela->v[posicao].estado == REMOVIDO) {
             posicao++;
             nColisoes++;
             if (posicao == tabela->tam) // Garante a "circularidade"
@@ -483,7 +494,7 @@ void cadastrar(Hashtable *tabela) {
 
 /****************************************** BUSCA ***********************************************/
 
-int buscar_privado(char *chave, Hashtable tabela) {
+int buscar_posicao(char *chave, Hashtable tabela) {
     // Calcula a posição inicial da busca pela função de hash
     int posicao = hash(chave, tabela.tam);
 
@@ -519,7 +530,7 @@ void buscar(Hashtable tabela) {
     }
 
     // Busca na tabela
-    int resultadoBusca = buscar_privado(chave, tabela);
+    int resultadoBusca = buscar_posicao(chave, tabela);
     if (resultadoBusca != -1) {
         // Encontrou, exibe o registro
         exibir_registro(tabela.v[resultadoBusca].rrn);
@@ -545,7 +556,7 @@ int alterar(Hashtable tabela) {
 
 
     // Busca se existe a chave primaria
-    int resultadoBusca = buscar_privado(chave, tabela);
+    int resultadoBusca = buscar_posicao(chave, tabela);
     if (resultadoBusca == -1) {
         // Nao encontrou
         printf(REGISTRO_N_ENCONTRADO);
@@ -599,7 +610,7 @@ int remover(Hashtable *tabela) {
 
 
     // Verifica se o registro existe
-    int resultadoBusca = buscar_privado(chave, *tabela);
+    int resultadoBusca = buscar_posicao(chave, *tabela);
     if (resultadoBusca == -1) {
         printf(REGISTRO_N_ENCONTRADO);
         return 0;
@@ -614,7 +625,7 @@ int remover(Hashtable *tabela) {
     p++;
     *p = '|';
  
- 
+
     // Modifica o RRN para -1 e o estado para REMOVIDO
     tabela->v[resultadoBusca].estado = REMOVIDO;
 
