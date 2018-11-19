@@ -93,6 +93,7 @@ int nregistros;
 typedef struct resultado_busca {
     int posicao;
     int rrn;
+    int estado;
     int nColisoes;
 } ResultadoBusca;
 
@@ -436,11 +437,13 @@ void cadastrar(Hashtable *tabela) {
     }
 
 
-    // Verifica se ja nao existe um registro com a chave primaria gerada
+    // Verifica se ja nao existe um registro com a chave primaria gerada (so entra nesse caso se o estado for diferente de REMOVIDO)
     ResultadoBusca resultadoBusca = buscar_posicao(novo.pk, *tabela);
-    if (resultadoBusca.rrn != -1) {
-        printf(ERRO_PK_REPETIDA, novo.pk);
-        return;
+    if (resultadoBusca.estado != REMOVIDO) {
+        if (resultadoBusca.rrn != -1) {
+            printf(ERRO_PK_REPETIDA, novo.pk);
+            return;
+        }
     }
 
 
@@ -454,7 +457,7 @@ void cadastrar(Hashtable *tabela) {
 
 	// Coloca a entrada no ARQUIVO de dados
 	strcat(ARQUIVO, entrada);
-    
+
 
 
     /***** Procura onde inserir *****/
@@ -479,9 +482,9 @@ void cadastrar(Hashtable *tabela) {
         int nColisoes = 0;
         // Procura uma posição para inserir
         while (tabela->v[posicao].estado != LIVRE) {
-            posicao++;
             if (tabela->v[posicao].estado == REMOVIDO)
                 break;
+            posicao++;
             nColisoes++;
             if (posicao == tabela->tam) // Garante a "circularidade"
                 posicao = 0;
@@ -515,6 +518,7 @@ ResultadoBusca buscar_posicao(char *chave, Hashtable tabela) {
     if (strcmp(tabela.v[posicao].pk, chave) == 0) {
         r.posicao = posicao;
         r.nColisoes = 0;
+        r.estado = tabela.v[posicao].estado;
         r.rrn = tabela.v[posicao].rrn;
         return r;
     }
@@ -526,6 +530,7 @@ ResultadoBusca buscar_posicao(char *chave, Hashtable tabela) {
             if (strcmp(tabela.v[posicao].pk, chave) == 0) {
                 r.posicao = posicao;
                 r.nColisoes = 0;
+                r.estado = tabela.v[posicao].estado;
                 r.rrn = tabela.v[posicao].rrn;
                 return r;
             }
@@ -534,6 +539,7 @@ ResultadoBusca buscar_posicao(char *chave, Hashtable tabela) {
         // Se saiu do while, não encontrou
         r.posicao = posicao;
         r.nColisoes = nColisoes;
+        r.estado = tabela.v[posicao].estado;
         r.rrn = -1;
         return r;
     }
