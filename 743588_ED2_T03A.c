@@ -610,7 +610,7 @@ int alterar(Hashtable tabela) {
     getchar();
 
     // Verifica se o novo desconto é válido (está entre 0 e 100), caso contrário pede novamente
-    while (strcmp(novoDesconto, "100") > 0 || strcmp(novoDesconto, "000") <= 0) {
+    while (strcmp(novoDesconto, "100") > 0 || strcmp(novoDesconto, "000") < 0) {
         printf(CAMPO_INVALIDO);
         scanf("%[^\n]s", novoDesconto);
         getchar();
@@ -667,8 +667,10 @@ int remover(Hashtable *tabela) {
     *p = '|';
  
 
-    // Modifica o RRN para -1 e o estado para REMOVIDO
+    // Modifica o estado para REMOVIDO
     tabela->v[resultadoBusca.posicao].estado = REMOVIDO;
+
+    return 1;
 
 }
 
