@@ -57,6 +57,7 @@
 #define ERRO_TABELA_CHEIA           "ERRO: Tabela Hash esta cheia!\n\n"
 #define REGISTRO_INSERIDO           "Registro %s inserido com sucesso. Numero de colisoes: %d.\n\n"
 
+
 /* Registro do produto */
 typedef struct produto {
     char pk[TAM_PRIMARY_KEY];
@@ -87,6 +88,7 @@ typedef struct hashtable {
 char ARQUIVO[TAM_ARQUIVO];
 int nregistros;
 
+
 /* ==========================================================================
  * ========================= PROTÓTIPOS DAS FUNÇÕES =========================
  * ========================================================================== */
@@ -114,8 +116,6 @@ void liberar_tabela(Hashtable *tabela);
 void cadastrar(Hashtable *tabela);
 int alterar(Hashtable tabela);
 void buscar(Hashtable tabela);
-
-// todo
 int remover(Hashtable *tabela);
 
 
@@ -179,7 +179,7 @@ int main()
         
         case 4:
             printf(INICIO_EXCLUSAO);
-            if (remover(&tabela)) //todo
+            if (remover(&tabela))
                 printf(SUCESSO);
             else
                 printf(FALHA);
@@ -448,7 +448,8 @@ void cadastrar(Hashtable *tabela) {
 	strcat(ARQUIVO, entrada);
 
 
-    // Procura onde inserir
+    /***** Procura onde inserir *****/
+
     int posicao = hash(novo.pk, tabela->tam);
     // printf("posicao: %d\n", posicao);  //!?!
 
@@ -467,13 +468,15 @@ void cadastrar(Hashtable *tabela) {
     else {  /* NÃO ESTÁ LIVRE */
         
         int nColisoes = 0;
-        
         // Procura uma posição para inserir
-        while (tabela->v[posicao].estado == OCUPADO && tabela->v[posicao].estado == REMOVIDO) {
-            posicao++;
+        //!? NAO FUNCIONA
+        while (tabela->v[posicao].estado != LIVRE) {
+            if (tabela->v[posicao].estado == REMOVIDO)
+                break;
             nColisoes++;
             if (posicao == tabela->tam) // Garante a "circularidade"
                 posicao = 0;
+            posicao++;
         }
         
         // Marca posicao como ocupada
