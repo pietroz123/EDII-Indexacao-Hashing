@@ -136,6 +136,9 @@ void criar_tabela(Hashtable *tabela, int tam);
 // Impressao da tabela hash
 void imprimir_tabela(Hashtable tabela);
 
+// Inserir na tabela hash
+void insere_tabela(Hashtable *tabela, int posicao, int rrn, char *chave);
+
 // Busca de uma chave na tabela hash
 ResultadoBusca buscar_posicao(char *chave, Hashtable tabela);
 
@@ -463,19 +466,26 @@ void cadastrar(Hashtable *tabela) {
     /***** Procura onde inserir *****/
  
     int posicao = hash(novo.pk, tabela->tam);
-    // printf("posicao: %d\n", posicao);  //!?!
+    int rrn = nregistros;
+    insere_tabela(tabela, posicao, rrn, novo.pk);
  
+ 
+    nregistros++;
+
+}
+void insere_tabela(Hashtable *tabela, int posicao, int rrn, char *chave) {
+
     if (tabela->v[posicao].estado == LIVRE) {   /* ESTÁ LIVRE */
         
         // Marca posicao como ocupada
         tabela->v[posicao].estado = OCUPADO;
         
         // Insere os dados na posicao
-        strcpy(tabela->v[posicao].pk, novo.pk);
-        tabela->v[posicao].rrn = nregistros;
+        strcpy(tabela->v[posicao].pk, chave);
+        tabela->v[posicao].rrn = rrn;
         
         // Imprime mensagem de sucesso
-        printf(REGISTRO_INSERIDO, novo.pk, 0);
+        printf(REGISTRO_INSERIDO, chave, 0);
     }
     else {  /* NÃO ESTÁ LIVRE */
         
@@ -495,17 +505,16 @@ void cadastrar(Hashtable *tabela) {
         tabela->v[posicao].estado = OCUPADO;
  
         // Insere os dados na posicao
-        strcpy(tabela->v[posicao].pk, novo.pk);
-        tabela->v[posicao].rrn = nregistros;
+        strcpy(tabela->v[posicao].pk, chave);
+        tabela->v[posicao].rrn = rrn;
         
         // Imprime mensagem de sucesso
-        printf(REGISTRO_INSERIDO, novo.pk, nColisoes);
+        printf(REGISTRO_INSERIDO, chave, nColisoes);
     }
- 
- 
-    nregistros++;
 
 }
+
+
 
 /****************************************** BUSCA ***********************************************/
 
