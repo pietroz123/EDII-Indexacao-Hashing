@@ -87,6 +87,14 @@ typedef struct hashtable {
 char ARQUIVO[TAM_ARQUIVO];
 int nregistros;
 
+
+// Estrutura de retorno da busca
+typedef struct resultado_busca {
+    int posicao;
+    int rrn;
+} ResultadoBusca;
+
+
 /* ==========================================================================
  * ========================= PROTÓTIPOS DAS FUNÇÕES =========================
  * ========================================================================== */
@@ -483,13 +491,17 @@ void cadastrar(Hashtable *tabela) {
 
 /****************************************** BUSCA ***********************************************/
 
-int buscar_privado(char *chave, Hashtable tabela) {
+ResultadoBusca buscar_privado(char *chave, Hashtable tabela) {
+
     // Calcula a posição inicial da busca pela função de hash
     int posicao = hash(chave, tabela.tam);
+    ResultadoBusca r;
 
     // Começa pela posição da função hash (h(x))
     if (strcmp(tabela.v[posicao].pk, chave) == 0) {
-        return posicao;
+        r.posicao = posicao;
+        r.rrn = tabela.v[posicao].rrn;
+        return r;
     }
     // Se não encontrou:
     else {
@@ -497,13 +509,18 @@ int buscar_privado(char *chave, Hashtable tabela) {
         // Continua incrementando a posição até encontrar a chave ou encontrar uma célula LIVRE
         while (tabela.v[posicao].estado != LIVRE) {
             if (strcmp(tabela.v[posicao].pk, chave) == 0) {
-                return posicao;
+                r.posicao = posicao;
+                r.rrn = tabela.v[posicao].rrn;
+                return r;
             }
             posicao++;
         }
         // Se saiu do while, não encontrou
-        return -1;
+        r.posicao = posicao;
+        r.rrn = -1;
+        return r;
     }
+
 }
 void buscar(Hashtable tabela) {
     
@@ -519,10 +536,10 @@ void buscar(Hashtable tabela) {
     }
 
     // Busca na tabela
-    int resultadoBusca = buscar_privado(chave, tabela);
-    if (resultadoBusca != -1) {
+    ResultadoBusca resultadoBusca = buscar_privado(chave, tabela);
+    if (resultadoBusca.rrn != -1) {
         // Encontrou, exibe o registro
-        exibir_registro(tabela.v[resultadoBusca].rrn);
+        exibir_registro(resultadoBusca.rrn);
     }
     else {
         // Nao encontrou
@@ -545,8 +562,8 @@ int alterar(Hashtable tabela) {
 
 
     // Busca se existe a chave primaria
-    int resultadoBusca = buscar_privado(chave, tabela);
-    if (resultadoBusca == -1) {
+    ResultadoBusca resultadoBusca = buscar_privado(chave, tabela);
+    if (resultadoBusca.rrn == -1) {
         // Nao encontrou
         printf(REGISTRO_N_ENCONTRADO);
         return 0;
@@ -566,7 +583,7 @@ int alterar(Hashtable tabela) {
 
 
     // Altera o desconto no ARQUIVO
-    char *p = ARQUIVO + 192*(tabela.v[resultadoBusca].rrn);
+    char *p = ARQUIVO + 192*(resultadoBusca.rrn);
  
     int arr = 0;
     while (*p && arr < 6) {
@@ -599,23 +616,22 @@ int remover(Hashtable *tabela) {
 
 
     // Verifica se o registro existe
-    int resultadoBusca = buscar_privado(chave, *tabela);
-    if (resultadoBusca == -1) {
+    ResultadoBusca resultadoBusca = buscar_privado(chave, *tabela);
+    if (resultadoBusca.rrn == -1) {
         printf(REGISTRO_N_ENCONTRADO);
         return 0;
     }
 
 
     // Vai na posicao do ARQUIVO
-    char *p = ARQUIVO + 192 * (tabela->v[resultadoBusca].rrn);
+    char *p = ARQUIVO + 192 * (resultadoBusca.rrn);
  
     // Coloca o marcador "*|" nas primeiras duas posições
     *p = '*';
     p++;
     *p = '|';
  
- 
     // Modifica o RRN para -1 e o estado para REMOVIDO
-    tabela->v[resultadoBusca].estado = REMOVIDO;
+    tabela->v[resultadoBusca.posicao].estado = REMOVIDO;
 
 }
