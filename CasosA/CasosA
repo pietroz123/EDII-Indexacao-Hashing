@@ -16,3 +16,8 @@ diff A.out CasosA/6.out
 diff A.out CasosA/7.out
 (./A < CasosA/8.in) > A.out
 diff A.out CasosA/8.out
+(./A < CasosA/9.in) > A.out
+diff A.out CasosA/9.out
+(./A < CasosA/10.in) > A.out
+diff A.out CasosA/10.out
+
