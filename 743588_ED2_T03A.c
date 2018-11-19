@@ -103,7 +103,7 @@ typedef struct resultado_busca {
  * ========================================================================== */
 
 /* Recebe do usuário uma string simulando o arquivo completo. */
-void carregar_arquivo();
+int carregar_arquivo();
 
 /* Exibe o produto */
 int exibir_registro(int rrn);
@@ -137,7 +137,7 @@ void criar_tabela(Hashtable *tabela, int tam);
 void imprimir_tabela(Hashtable tabela);
 
 // Inserir na tabela hash
-void insere_tabela(Hashtable *tabela, int posicao, int rrn, char *chave);
+int insere_tabela(Hashtable *tabela, int posicao, int rrn, char *chave);
 
 // Busca de uma chave na tabela hash
 ResultadoBusca buscar_posicao(char *chave, Hashtable tabela);
@@ -151,9 +151,10 @@ int main()
 {
     /* Arquivo */
     int carregarArquivo = 0;
+    nregistros = 0;
     scanf("%d\n", &carregarArquivo); // 1 (sim) | 0 (nao)
     if (carregarArquivo)
-        carregar_arquivo();
+        nregistros = carregar_arquivo();
 
     /* Tabela Hash */
     int tam;
@@ -162,8 +163,8 @@ int main()
 
     Hashtable tabela;
     criar_tabela(&tabela, tam);
-    // if (carregarArquivo)
-        // carregar_tabela(&tabela); //todo
+    if (carregarArquivo)
+        carregar_tabela(&tabela); //todo
 
     /* Execução do programa */
     int opcao = 0;
@@ -223,9 +224,11 @@ int main()
 
 
 /* Recebe do usuário uma string simulando o arquivo completo. */
-void carregar_arquivo()
+int carregar_arquivo()
 {
     scanf("%[^\n]\n", ARQUIVO);
+    return strlen(ARQUIVO) / TAM_REGISTRO;
+
 }
 
 /* ============================================================================================
@@ -467,13 +470,15 @@ void cadastrar(Hashtable *tabela) {
  
     int posicao = hash(novo.pk, tabela->tam);
     int rrn = nregistros;
-    insere_tabela(tabela, posicao, rrn, novo.pk);
+    int nColisoes = insere_tabela(tabela, posicao, rrn, novo.pk);
+    printf(REGISTRO_INSERIDO, novo.pk, nColisoes);
  
  
     nregistros++;
 
 }
-void insere_tabela(Hashtable *tabela, int posicao, int rrn, char *chave) {
+// Insere e retorna o numero de colisoes
+int insere_tabela(Hashtable *tabela, int posicao, int rrn, char *chave) {
 
     if (tabela->v[posicao].estado == LIVRE) {   /* ESTÁ LIVRE */
         
@@ -484,8 +489,7 @@ void insere_tabela(Hashtable *tabela, int posicao, int rrn, char *chave) {
         strcpy(tabela->v[posicao].pk, chave);
         tabela->v[posicao].rrn = rrn;
         
-        // Imprime mensagem de sucesso
-        printf(REGISTRO_INSERIDO, chave, 0);
+        return 0;
     }
     else {  /* NÃO ESTÁ LIVRE */
         
@@ -508,8 +512,7 @@ void insere_tabela(Hashtable *tabela, int posicao, int rrn, char *chave) {
         strcpy(tabela->v[posicao].pk, chave);
         tabela->v[posicao].rrn = rrn;
         
-        // Imprime mensagem de sucesso
-        printf(REGISTRO_INSERIDO, chave, nColisoes);
+        return nColisoes;
     }
 
 }
@@ -666,5 +669,23 @@ int remover(Hashtable *tabela) {
 
     // Modifica o RRN para -1 e o estado para REMOVIDO
     tabela->v[resultadoBusca.posicao].estado = REMOVIDO;
+
+}
+
+
+
+/* ============================================================================================
+   =============================== INSERCAO COM ARQUIVO INICIAL ===============================
+   ============================================================================================ */
+
+void carregar_tabela(Hashtable *tabela) {
+
+    for (int i = 0; i < nregistros; i++) {
+
+        Produto j = recuperar_registro(i);
+        int posicao = hash(j.pk, tabela->tam);
+        insere_tabela(tabela, posicao, i, j.pk);
+
+    }
 
 }
