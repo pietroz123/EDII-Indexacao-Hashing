@@ -513,35 +513,25 @@ ResultadoBusca buscar_posicao(char *chave, Hashtable tabela) {
     int posicao = hash(chave, tabela.tam);
     int nColisoes = 0;
 
-    // Começa pela posição da função hash (h(x))
-    if (strcmp(tabela.v[posicao].pk, chave) == 0) {
-        r.posicao = posicao;
-        r.nColisoes = 0;
-        r.estado = tabela.v[posicao].estado;
-        r.rrn = tabela.v[posicao].rrn;
-        return r;
-    }
-    // Se não encontrou:
-    else {
-        // Continua incrementando a posição até encontrar a chave ou encontrar uma célula LIVRE
-        while (tabela.v[posicao].estado != LIVRE) {
-            nColisoes++;
-            if (strcmp(tabela.v[posicao].pk, chave) == 0) {
-                r.posicao = posicao;
-                r.nColisoes = 0;
-                r.estado = tabela.v[posicao].estado;
-                r.rrn = tabela.v[posicao].rrn;
-                return r;
-            }
-            posicao++;
+    // Continua incrementando a posição até encontrar a chave ou encontrar uma célula LIVRE
+    while (tabela.v[posicao].estado != LIVRE) {
+        if (strcmp(tabela.v[posicao].pk, chave) == 0) {
+            r.posicao = posicao;
+            r.nColisoes = 0;
+            r.estado = tabela.v[posicao].estado;
+            r.rrn = tabela.v[posicao].rrn;
+            return r;
         }
-        // Se saiu do while, não encontrou
-        r.posicao = posicao;
-        r.nColisoes = nColisoes;
-        r.estado = tabela.v[posicao].estado;
-        r.rrn = -1;
-        return r;
+        nColisoes++;
+        posicao++;
     }
+    // Se saiu do while, não encontrou
+    r.posicao = posicao;
+    r.nColisoes = nColisoes;
+    r.estado = tabela.v[posicao].estado;
+    r.rrn = -1;
+    return r;
+    
 }
 void buscar(Hashtable tabela) {
     
