@@ -480,40 +480,26 @@ void cadastrar(Hashtable *tabela) {
 // Insere e retorna o numero de colisoes
 int insere_tabela(Hashtable *tabela, int posicao, int rrn, char *chave) {
 
-    if (tabela->v[posicao].estado == LIVRE) {   /* ESTÁ LIVRE */
-        
-        // Marca posicao como ocupada
-        tabela->v[posicao].estado = OCUPADO;
-        
-        // Insere os dados na posicao
-        strcpy(tabela->v[posicao].pk, chave);
-        tabela->v[posicao].rrn = rrn;
-        
-        return 0;
+    int nColisoes = 0;
+    // Procura uma posição para inserir
+    while (tabela->v[posicao].estado != LIVRE) {
+        // Se o estado eh REMOVIDO, podemos inserir nessa posicao e sobrescrever os dados
+        if (tabela->v[posicao].estado == REMOVIDO)
+            break;
+        posicao++;
+        nColisoes++;
+        if (posicao == tabela->tam) // Garante a "circularidade"
+            posicao = 0;
     }
-    else {  /* NÃO ESTÁ LIVRE */
-        
-        int nColisoes = 0;
-        // Procura uma posição para inserir
-        while (tabela->v[posicao].estado != LIVRE) {
-            // Se o estado eh REMOVIDO, podemos inserir nessa posicao e sobrescrever os dados
-            if (tabela->v[posicao].estado == REMOVIDO)
-                break;
-            posicao++;
-            nColisoes++;
-            if (posicao == tabela->tam) // Garante a "circularidade"
-                posicao = 0;
-        }
-        
-        // Marca posicao como ocupada
-        tabela->v[posicao].estado = OCUPADO;
- 
-        // Insere os dados na posicao
-        strcpy(tabela->v[posicao].pk, chave);
-        tabela->v[posicao].rrn = rrn;
-        
-        return nColisoes;
-    }
+    
+    // Marca posicao como ocupada
+    tabela->v[posicao].estado = OCUPADO;
+
+    // Insere os dados na posicao
+    strcpy(tabela->v[posicao].pk, chave);
+    tabela->v[posicao].rrn = rrn;
+    
+    return nColisoes;
 
 }
 
