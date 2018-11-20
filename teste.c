@@ -92,9 +92,8 @@ int nregistros;
 // Estrutura para o resultado da busca
 typedef struct resultado_busca {
     int posicao;
-    int rrn;
-    int estado;
     int nColisoes;
+    int flag;
 } ResultadoBusca;
 
 
@@ -445,11 +444,9 @@ void cadastrar(Hashtable *tabela) {
 
     // Verifica se ja nao existe um registro com a chave primaria gerada (so entra nesse caso se o estado for diferente de REMOVIDO)
     ResultadoBusca resultadoBusca = buscar_posicao(novo.pk, *tabela);
-    if (resultadoBusca.estado != REMOVIDO) {
-        if (resultadoBusca.rrn != -1) {
-            printf(ERRO_PK_REPETIDA, novo.pk);
-            return;
-        }
+    if (resultadoBusca.flag != -1) {
+        printf(ERRO_PK_REPETIDA, novo.pk);
+        return;
     }
 
 
@@ -464,15 +461,16 @@ void cadastrar(Hashtable *tabela) {
 	// Coloca a entrada no ARQUIVO de dados
 	strcat(ARQUIVO, entrada);
 
+    // printf("posicao: %d\n", resultadoBusca.posicao);  //!?!
+    // printf("nColisoes: %d\n", resultadoBusca.nColisoes);  //!?!
+    // printf("flag: %d\n", resultadoBusca.flag);  //!?!
 
 
-    /***** Procura onde inserir *****/
- 
-    int posicao = hash(novo.pk, tabela->tam);
-    int rrn = nregistros;
-    int nColisoes = insere_tabela(tabela, posicao, rrn, novo.pk);
-    printf(REGISTRO_INSERIDO, novo.pk, nColisoes);
- 
+    strcpy(tabela->v[resultadoBusca.posicao].pk, novo.pk);
+    tabela->v[resultadoBusca.posicao].rrn = nregistros;
+    tabela->v[resultadoBusca.posicao].estado = OCUPADO;
+    printf(REGISTRO_INSERIDO, novo.pk, resultadoBusca.nColisoes);
+
  
     nregistros++;
 
@@ -515,24 +513,31 @@ ResultadoBusca buscar_posicao(char *chave, Hashtable tabela) {
     // Calcula a posição inicial da busca pela função de hash
     int posicao = hash(chave, tabela.tam);
     int nColisoes = 0;
+    int flag = posicao;
 
     // Continua incrementando a posição até encontrar a chave ou encontrar uma célula LIVRE
     while (tabela.v[posicao].estado != LIVRE) {
         if (strcmp(tabela.v[posicao].pk, chave) == 0) {
             r.posicao = posicao;
-            r.nColisoes = 0;
-            r.estado = tabela.v[posicao].estado;
-            r.rrn = tabela.v[posicao].rrn;
+            r.nColisoes = nColisoes;
+            r.flag = 1;
             return r;
         }
         nColisoes++;
         posicao++;
+        posicao = posicao % tabela.tam; // Garante a "circularidade"
+        if (posicao == flag) {
+            // Hash cheia
+            r.posicao = -1;
+            r.nColisoes = -1;
+            r.flag = 2;
+            return r;
+        }
     }
     // Se saiu do while, não encontrou
     r.posicao = posicao;
     r.nColisoes = nColisoes;
-    r.estado = tabela.v[posicao].estado;
-    r.rrn = -1;
+    r.flag = -1;
     return r;
     
 }
@@ -551,7 +556,7 @@ void buscar(Hashtable tabela) {
 
     // Busca na tabela
     ResultadoBusca resultadoBusca = buscar_posicao(chave, tabela);
-    if (resultadoBusca.rrn != -1 && resultadoBusca.estado != REMOVIDO) {
+    if (resultadoBusca.flag != -1 && resultadoBusca.estado != REMOVIDO) {
         // Encontrou, exibe o registro
         exibir_registro(resultadoBusca.rrn);
     }
@@ -567,53 +572,53 @@ void buscar(Hashtable tabela) {
 
 int alterar(Hashtable tabela) {
 
-    char chave[TAM_PRIMARY_KEY];
-    char novoDesconto[TAM_DESCONTO];
+    // char chave[TAM_PRIMARY_KEY];
+    // char novoDesconto[TAM_DESCONTO];
  
-    // Recebe a chave primária
-    scanf("%[^\n]s", chave);
-    getchar();
+    // // Recebe a chave primária
+    // scanf("%[^\n]s", chave);
+    // getchar();
 
 
-    // Busca se existe a chave primaria
-    ResultadoBusca resultadoBusca = buscar_posicao(chave, tabela);
-    if (resultadoBusca.rrn == -1) {
-        // Nao encontrou
-        printf(REGISTRO_N_ENCONTRADO);
-        return 0;
-    }
+    // // Busca se existe a chave primaria
+    // ResultadoBusca resultadoBusca = buscar_posicao(chave, tabela);
+    // if (resultadoBusca.rrn == -1) {
+    //     // Nao encontrou
+    //     printf(REGISTRO_N_ENCONTRADO);
+    //     return 0;
+    // }
 
 
-    // Recebe o novo desconto
-    scanf("%[^\n]s", novoDesconto);
-    getchar();
+    // // Recebe o novo desconto
+    // scanf("%[^\n]s", novoDesconto);
+    // getchar();
 
-    // Verifica se o novo desconto é válido (está entre 0 e 100), caso contrário pede novamente
-    while (strcmp(novoDesconto, "100") > 0 || strcmp(novoDesconto, "000") < 0) {
-        printf(CAMPO_INVALIDO);
-        scanf("%[^\n]s", novoDesconto);
-        getchar();
-    }
+    // // Verifica se o novo desconto é válido (está entre 0 e 100), caso contrário pede novamente
+    // while (strcmp(novoDesconto, "100") > 0 || strcmp(novoDesconto, "000") < 0) {
+    //     printf(CAMPO_INVALIDO);
+    //     scanf("%[^\n]s", novoDesconto);
+    //     getchar();
+    // }
 
 
-    // Altera o desconto no ARQUIVO
-    char *p = ARQUIVO + 192*(resultadoBusca.rrn);
+    // // Altera o desconto no ARQUIVO
+    // char *p = ARQUIVO + 192*(resultadoBusca.rrn);
  
-    int arr = 0;
-    while (*p && arr < 6) {
-        if (*p == '@')
-            arr++;
-        p++;
-    }
+    // int arr = 0;
+    // while (*p && arr < 6) {
+    //     if (*p == '@')
+    //         arr++;
+    //     p++;
+    // }
  
-    // Altera o desconto
-    *p = novoDesconto[0];
-    p++;
-    *p = novoDesconto[1];
-    p++;
-    *p = novoDesconto[2];
+    // // Altera o desconto
+    // *p = novoDesconto[0];
+    // p++;
+    // *p = novoDesconto[1];
+    // p++;
+    // *p = novoDesconto[2];
  
-    return 1;
+    // return 1;
 
 }
 
@@ -622,34 +627,34 @@ int alterar(Hashtable tabela) {
 
 int remover(Hashtable *tabela) {
 
-    char chave[TAM_PRIMARY_KEY];
+    // char chave[TAM_PRIMARY_KEY];
  
-    // Recebe a chave primária
-    scanf("%[^\n]s", chave);
-    getchar();
+    // // Recebe a chave primária
+    // scanf("%[^\n]s", chave);
+    // getchar();
 
 
-    // Verifica se o registro existe
-    ResultadoBusca resultadoBusca = buscar_posicao(chave, *tabela);
-    if (resultadoBusca.rrn == -1) {
-        printf(REGISTRO_N_ENCONTRADO);
-        return 0;
-    }
+    // // Verifica se o registro existe
+    // ResultadoBusca resultadoBusca = buscar_posicao(chave, *tabela);
+    // if (resultadoBusca.rrn == -1) {
+    //     printf(REGISTRO_N_ENCONTRADO);
+    //     return 0;
+    // }
 
 
-    // Vai na posicao do ARQUIVO
-    char *p = ARQUIVO + 192 * (resultadoBusca.rrn);
+    // // Vai na posicao do ARQUIVO
+    // char *p = ARQUIVO + 192 * (resultadoBusca.rrn);
  
-    // Coloca o marcador "*|" nas primeiras duas posições
-    *p = '*';
-    p++;
-    *p = '|';
+    // // Coloca o marcador "*|" nas primeiras duas posições
+    // *p = '*';
+    // p++;
+    // *p = '|';
  
 
-    // Modifica o estado para REMOVIDO
-    tabela->v[resultadoBusca.posicao].estado = REMOVIDO;
+    // // Modifica o estado para REMOVIDO
+    // tabela->v[resultadoBusca.posicao].estado = REMOVIDO;
 
-    return 1;
+    // return 1;
 
 }
 
@@ -662,11 +667,6 @@ int remover(Hashtable *tabela) {
 void carregar_tabela(Hashtable *tabela) {
 
     for (int i = 0; i < nregistros; i++) {
-
-        if (i >= tabela->tam) {
-            printf(ERRO_TABELA_CHEIA);
-            continue;
-        }
 
         Produto j = recuperar_registro(i);
         int posicao = hash(j.pk, tabela->tam);
