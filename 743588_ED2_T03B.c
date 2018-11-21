@@ -97,6 +97,10 @@ short f(char x);
 int prox_primo(int a);
 
 /*Funções do Menu*/
+
+//OK
+
+//todo
 void carregar_tabela(Hashtable *tabela);
 void cadastrar(Hashtable *tabela);
 int alterar(Hashtable tabela);
@@ -122,18 +126,18 @@ int main()
     /* Arquivo */
     int carregarArquivo = 0;
     scanf("%d%*c", &carregarArquivo); // 1 (sim) | 0 (nao)
-    if (carregarArquivo)
-        carregar_arquivo();
+    // if (carregarArquivo) //todo
+        // carregar_arquivo(); //todo
 
     /* Tabela Hash */
     int tam;
     scanf("%d%*c", &tam);
-    tam = prox_primo(tam);
+    // tam = prox_primo(tam);
 
     Hashtable tabela;
-    criar_tabela(&tabela, tam);
-    if (carregarArquivo)
-        carregar_tabela(&tabela);
+    // criar_tabela(&tabela, tam); //todo
+    // if (carregarArquivo) //todo
+    //     carregar_tabela(&tabela); //todo
 
     /* Execução do programa */
     int opcao = 0;
@@ -143,34 +147,34 @@ int main()
         switch (opcao) {
 
         case 1:
-            cadastrar(&tabela);
+            // cadastrar(&tabela); //todo
             break;
         
         case 2:
             printf(INICIO_ALTERACAO);
-            if (alterar(tabela))
-                printf(SUCESSO);
-            else
-                printf(FALHA);
+            // if (alterar(tabela)) //todo
+            //     printf(SUCESSO);
+            // else
+            //     printf(FALHA);
             break;
         
         case 3:
             printf(INICIO_BUSCA);
-            buscar(tabela);
+            // buscar(tabela); //todo
             break;
         
         case 4:
             printf(INICIO_EXCLUSAO);
-            printf("%s", (remover(&tabela)) ? SUCESSO : FALHA);
+            // printf("%s", (remover(&tabela)) ? SUCESSO : FALHA); //todo
             break;
         
         case 5:
             printf(INICIO_LISTAGEM);
-            imprimir_tabela(tabela);
+            // imprimir_tabela(tabela); //todo
             break;
         
         case 6:
-            liberar_tabela(&tabela);
+            // liberar_tabela(&tabela); //todo
             break;
 
         
@@ -212,25 +216,25 @@ short f(char x)
 /* Exibe o produto */
 int exibir_registro(int rrn)
 {
-    if (rrn < 0)
-        return 0;
-    float preco;
-    int desconto;
-    Produto j = recuperar_registro(rrn);
-    char *cat, categorias[TAM_CATEGORIA];
-    printf("%s\n", j.pk);
-    printf("%s\n", j.nome);
-    printf("%s\n", j.marca);
-    printf("%s\n", j.data);
-    printf("%s\n", j.ano);
-    sscanf(j.desconto, "%d", &desconto);
-    sscanf(j.preco, "%f", &preco);
-    preco = preco * (100 - desconto);
-    preco = ((int)preco) / (float)100;
-    printf("%07.2f\n", preco);
-    strncpy(categorias, j.categoria, strlen(j.categoria));
-    for (cat = strtok(categorias, "|"); cat != NULL; cat = strtok(NULL, "|"))
-        printf("%s ", cat);
-    printf("\n");
-    return 1;
+    // if (rrn < 0)
+    //     return 0;
+    // float preco;
+    // int desconto;
+    // Produto j = recuperar_registro(rrn); //todo
+    // char *cat, categorias[TAM_CATEGORIA];
+    // printf("%s\n", j.pk);
+    // printf("%s\n", j.nome);
+    // printf("%s\n", j.marca);
+    // printf("%s\n", j.data);
+    // printf("%s\n", j.ano);
+    // sscanf(j.desconto, "%d", &desconto);
+    // sscanf(j.preco, "%f", &preco);
+    // preco = preco * (100 - desconto);
+    // preco = ((int)preco) / (float)100;
+    // printf("%07.2f\n", preco);
+    // strncpy(categorias, j.categoria, strlen(j.categoria));
+    // for (cat = strtok(categorias, "|"); cat != NULL; cat = strtok(NULL, "|"))
+    //     printf("%s ", cat);
+    // printf("\n");
+    // return 1;
 }
