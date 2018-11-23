@@ -88,7 +88,7 @@ void carregar_arquivo();
 int exibir_registro(int rrn);
 
 /*Função de Hash*/
-short hash(const char *chave, int tam);
+short hash(const char *chave, int tam);  //todo
 
 /*Auxiliar para a função de hash*/
 short f(char x);
@@ -132,7 +132,7 @@ int main()
     /* Tabela Hash */
     int tam;
     scanf("%d%*c", &tam);
-    // tam = prox_primo(tam);
+    tam = prox_primo(tam);
 
     Hashtable tabela;
     // criar_tabela(&tabela, tam); //todo
@@ -238,3 +238,26 @@ int exibir_registro(int rrn)
     // printf("\n");
     // return 1;
 }
+
+/* ============================================================================================
+   ================================ FUNCOES AUXILIARES ========================================
+   ============================================================================================ */
+
+
+int eh_primo(int n) {
+    int cont = 0;
+    for (int i = 1; i <= n; i++) {
+        if (n % i == 0)
+            cont++;
+    }
+    if (cont == 2)
+        return 1;
+    else
+        return 0;
+}
+int prox_primo(int a) {
+    while (!eh_primo(a))
+        a++;
+    return a;
+}
+
