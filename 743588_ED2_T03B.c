@@ -151,7 +151,7 @@ int main()
         switch (opcao) {
 
         case 1:
-            // cadastrar(&tabela); //todo
+            cadastrar(&tabela); //todo
             break;
         
         case 2:
@@ -327,5 +327,69 @@ void liberar_tabela(Hashtable *tabela) {
         atual = NULL;
     }
     free(tabela->v);
+
+}
+
+
+/* ============================================================================================
+   ================================= INTERACAO COM O USUARIO ==================================
+   ============================================================================================ */
+
+
+/***************************************** CADASTRO *********************************************/
+
+// Gera a chave primária 
+void gerar_chave(Produto *P) {
+    P->pk[0] = '\0';                // Garante que os dados serão concatenados corretamente na chave primária
+    strncat(P->pk, P->nome, 2);     // N1N2 
+    strncat(P->pk, P->marca, 2);    // M1M2
+ 
+    char *dAux;                     // DDMM
+    char dataAux[11];               // Cria uma string dataAux para não perder o valor da data original com o strtok
+    strcpy(dataAux, P->data);
+    dAux = strtok(dataAux, "/");    // DD
+    strncat(P->pk, dAux, 2);
+    dAux = strtok(NULL, "/");       // MM
+    strncat(P->pk, dAux, 2);
+    
+    strncat(P->pk, P->ano, 2);      // AL
+}
+void ler_entrada(Produto *novo) {
+    scanf("%[^\n]s", novo->nome);
+    getchar();
+    scanf("%[^\n]s", novo->marca);
+    getchar();
+    scanf("%[^\n]s", novo->data);
+    getchar();
+    scanf("%[^\n]s", novo->ano);
+    getchar();
+    scanf("%[^\n]s", novo->preco);
+    getchar();
+    scanf("%[^\n]s", novo->desconto);
+    getchar();
+    scanf("%[^\n]s", novo->categoria);
+    getchar();
+}
+void cadastrar(Hashtable *tabela) {
+
+    char entrada[193];
+	Produto novo;
+
+
+	// Lê a entrada do usuário e gera a chave primária
+	ler_entrada(&novo);
+	gerar_chave(&novo);
+
+
+    // Coloca os dados na string entrada[]
+	sprintf(entrada, "%s@%s@%s@%s@%s@%s@%s@%s@", novo.pk, novo.nome, novo.marca, novo.data, novo.ano, novo.preco, novo.desconto, novo.categoria);
+
+    // Completa os espaços restantes com '#'
+    int necessarios = 192 - strlen(entrada);
+    for (int i = 0; i < necessarios; i++)
+        strcat(entrada, "#");
+
+	// Coloca a entrada no ARQUIVO de dados
+	strcat(ARQUIVO, entrada);
 
 }
