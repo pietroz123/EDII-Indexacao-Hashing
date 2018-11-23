@@ -47,7 +47,7 @@
 #define REGISTRO_INSERIDO       "Registro %s inserido com sucesso.\n\n"
 
 /* Registro do produto */
-typedef struct {
+typedef struct produto {
     char pk[TAM_PRIMARY_KEY];
     char nome[TAM_NOME];
     char marca[TAM_MARCA];
@@ -68,7 +68,7 @@ typedef struct chave {
 } Chave;
 
 /* Estrutura da Tabela Hash */
-typedef struct {
+typedef struct hashtable {
     int tam;
     Chave **v;
 } Hashtable;
@@ -99,6 +99,7 @@ int prox_primo(int a);
 /*Funções do Menu*/
 
 //OK
+void liberar_tabela(Hashtable *tabela);
 
 //todo
 void carregar_tabela(Hashtable *tabela);
@@ -106,12 +107,15 @@ void cadastrar(Hashtable *tabela);
 int alterar(Hashtable tabela);
 void buscar(Hashtable tabela);
 int remover(Hashtable *tabela);
-void liberar_tabela(Hashtable *tabela);
 
 
 /* <<< DECLARE AQUI OS PROTOTIPOS >>> */
 
+// Inicializacao da tabela hash
+void criar_tabela(Hashtable *tabela, int tam);
 
+// Impressao da tabela hash
+void imprimir_tabela(Hashtable tabela);
 
 
 
@@ -135,7 +139,7 @@ int main()
     tam = prox_primo(tam);
 
     Hashtable tabela;
-    // criar_tabela(&tabela, tam); //todo
+    criar_tabela(&tabela, tam);
     // if (carregarArquivo) //todo
     //     carregar_tabela(&tabela); //todo
 
@@ -170,11 +174,11 @@ int main()
         
         case 5:
             printf(INICIO_LISTAGEM);
-            // imprimir_tabela(tabela); //todo
+            imprimir_tabela(tabela);
             break;
         
         case 6:
-            // liberar_tabela(&tabela); //todo
+            liberar_tabela(&tabela);
             break;
 
         
@@ -261,3 +265,67 @@ int prox_primo(int a) {
     return a;
 }
 
+
+/* ============================================================================================
+   =================================== INICIALIZACAO ==========================================
+   ============================================================================================ */
+
+void criar_tabela(Hashtable *tabela, int tam) {
+
+    // Inicializa o tamanho
+    tabela->tam = tam;
+
+    // Inicializa a tabela
+    tabela->v = (Chave**) malloc(tam * sizeof(Chave));
+
+    // Inicializa as listas de chaves de cada posição da tabela hash
+    for (int i = 0; i < tam; i++) {
+        tabela->v[i] = (Chave*) malloc(sizeof(Chave));
+        memset(tabela->v[i]->pk, 0, TAM_PRIMARY_KEY);
+        tabela->v[i]->rrn = -1;
+    }
+
+}
+
+
+/* ============================================================================================
+   ====================================== IMPRESSAO ===========================================
+   ============================================================================================ */
+
+void imprimir_tabela(Hashtable tabela) {
+
+    for (int i = 0; i < tabela.tam; i++) {
+
+        printf("[%d]", i);
+
+        Chave *atual = tabela.v[i];
+        while (atual) {
+            printf(" %s", atual->pk);
+            atual = atual->prox;
+        }
+        printf("\n");
+
+    }
+
+}
+
+
+/* ============================================================================================
+   ====================================== LIBERACAO ===========================================
+   ============================================================================================ */
+
+void liberar_tabela(Hashtable *tabela) {
+
+    for (int i = 0; i < tabela->tam; i++) {
+        Chave *atual = tabela->v[i];
+        Chave *temp;
+        while (atual) {
+            temp = atual;
+            atual = atual->prox;
+            free(temp);
+        }
+        atual = NULL;
+    }
+    free(tabela->v);
+
+}
