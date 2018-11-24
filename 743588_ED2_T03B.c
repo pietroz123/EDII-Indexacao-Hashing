@@ -118,7 +118,7 @@ void criar_tabela(Hashtable *tabela, int tam);
 void imprimir_tabela(Hashtable tabela);
 
 // Insercoes na lista de chaves
-void inserir_lista(Chave *primeiro, char *chave);
+void inserir_lista(Chave **primeiro, char *chave);
 
 
 
@@ -292,12 +292,12 @@ void criar_tabela(Hashtable *tabela, int tam) {
     // Inicializa a tabela
     tabela->v = (Chave**) malloc(tam * sizeof(Chave));
 
-    // Inicializa as listas de chaves de cada posição da tabela hash
-    for (int i = 0; i < tam; i++) {
-        tabela->v[i] = (Chave*) malloc(sizeof(Chave));
-        memset(tabela->v[i]->pk, 0, TAM_PRIMARY_KEY);
-        tabela->v[i]->rrn = -1;
-    }
+    // // Inicializa as listas de chaves de cada posição da tabela hash
+    // for (int i = 0; i < tam; i++) {
+    //     tabela->v[i] = (Chave*) malloc(sizeof(Chave));
+    //     memset(tabela->v[i]->pk, 0, TAM_PRIMARY_KEY);
+    //     tabela->v[i]->rrn = -1;
+    // }
 
 }
 
@@ -407,28 +407,28 @@ void cadastrar(Hashtable *tabela) {
 	strcat(ARQUIVO, entrada);
 
 
+    /***** Procura onde inserir *****/
     int posicao = hash(novo.pk, tabela->tam);
-    printf("posicao: %d\n", posicao);
-    inserir_lista(tabela->v[posicao], novo.pk);
+    inserir_lista(&(tabela->v[posicao]), novo.pk);
+    printf(REGISTRO_INSERIDO, novo.pk);
 
     
-
 }
 
 
-void inserir_lista(Chave *primeiro, char *chave) {
+void inserir_lista(Chave **primeiro, char *chave) {
 
     /* Caso lista vazia ou o primeiro ja eh maior que a chave a ser inserida */
-    if ((primeiro) == NULL || strcmp((primeiro)->pk, chave) > 0) {
+    if ((*primeiro) == NULL || strcmp((*primeiro)->pk, chave) > 0) {
         Chave *novo = (Chave*) malloc(sizeof(Chave));
         strcpy(novo->pk, chave);
-        novo->prox = (primeiro);
-        (primeiro) = novo;
+        novo->prox = (*primeiro);
+        (*primeiro) = novo;
         return;
     }
 
     /* Caso meio da lista */
-    Chave *aux = (primeiro);
+    Chave *aux = (*primeiro);
     while (aux->prox && strcmp(aux->prox->pk, chave) < 0)
         aux = aux->prox;
     
