@@ -102,10 +102,10 @@ int prox_primo(int a);
 void liberar_tabela(Hashtable *tabela);
 void cadastrar(Hashtable *tabela);
 void buscar(Hashtable tabela);
+int alterar(Hashtable tabela);
 
 //todo
 void carregar_tabela(Hashtable *tabela);
-int alterar(Hashtable tabela);
 int remover(Hashtable *tabela);
 
 
@@ -161,10 +161,10 @@ int main()
         
         case 2:
             printf(INICIO_ALTERACAO);
-            // if (alterar(tabela)) //todo
-            //     printf(SUCESSO);
-            // else
-            //     printf(FALHA);
+            if (alterar(tabela))
+                printf(SUCESSO);
+            else
+                printf(FALHA);
             break;
         
         case 3:
@@ -517,5 +517,62 @@ void buscar(Hashtable tabela) {
     }
 
 
+
+}
+
+
+/**************************************** ALTERACAO *********************************************/
+
+int alterar(Hashtable tabela) {
+
+    char chave[TAM_PRIMARY_KEY];
+    char novoDesconto[TAM_DESCONTO];
+ 
+    // Recebe a chave primária
+    scanf("%[^\n]s", chave);
+    getchar();
+
+
+    // Busca se existe a chave primaria
+
+    int posicao = hash(chave, tabela.tam);
+    int resultadoBusca = buscar_lista(&(tabela.v[posicao]), chave);
+    if (resultadoBusca == -1) {
+        // Nao encontrou
+        printf(REGISTRO_N_ENCONTRADO);
+        return 0;
+    }
+
+
+    // Recebe o novo desconto
+    scanf("%[^\n]s", novoDesconto);
+    getchar();
+
+    // Verifica se o novo desconto é válido (está entre 0 e 100), caso contrário pede novamente
+    while (strcmp(novoDesconto, "100") > 0 || strcmp(novoDesconto, "000") < 0) {
+        printf(CAMPO_INVALIDO);
+        scanf("%[^\n]s", novoDesconto);
+        getchar();
+    }
+
+
+    // Altera o desconto no ARQUIVO
+    char *p = ARQUIVO + 192*(resultadoBusca);
+ 
+    int arr = 0;
+    while (*p && arr < 6) {
+        if (*p == '@')
+            arr++;
+        p++;
+    }
+ 
+    // Altera o desconto
+    *p = novoDesconto[0];
+    p++;
+    *p = novoDesconto[1];
+    p++;
+    *p = novoDesconto[2];
+ 
+    return 1;
 
 }
