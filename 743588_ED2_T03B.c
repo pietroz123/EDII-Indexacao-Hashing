@@ -101,11 +101,11 @@ int prox_primo(int a);
 //OK
 void liberar_tabela(Hashtable *tabela);
 void cadastrar(Hashtable *tabela);
+void buscar(Hashtable tabela);
 
 //todo
 void carregar_tabela(Hashtable *tabela);
 int alterar(Hashtable tabela);
-void buscar(Hashtable tabela);
 int remover(Hashtable *tabela);
 
 
@@ -120,6 +120,8 @@ void imprimir_tabela(Hashtable tabela);
 // Insercoes na lista de chaves
 void inserir_lista(Chave **primeiro, char *chave);
 
+// Busca na lista de chaves
+int buscar_lista(Chave **primeiro, char *chave);
 
 
 
@@ -167,7 +169,7 @@ int main()
         
         case 3:
             printf(INICIO_BUSCA);
-            // buscar(tabela); //todo
+            buscar(tabela);
             break;
         
         case 4:
@@ -229,32 +231,63 @@ short hash(const char *chave, int tam) {
 }
 
 
+/* ============================================================================================
+   ============================= RECUPERAR E EXIBIR REGISTRO ==================================
+   ============================================================================================ */
 
+/* Recupera o registro no ARQUIVO de dados e retorna os dados na struct Produto */
+Produto recuperar_registro(int rrn)
+{
+    char temp[193], *p;
+    strncpy(temp, ARQUIVO + ((rrn)*192), 192);
+    temp[192] = '\0';
+    Produto j;
+
+	// Recebe os dados da string temp retirada do ARQUIVO de dados em determinado RRN
+	p = strtok(temp, "@");
+	strcpy(j.pk, p);
+	p = strtok(NULL, "@");
+	strcpy(j.nome, p);
+	p = strtok(NULL, "@");
+	strcpy(j.marca, p);
+	p = strtok(NULL, "@");
+	strcpy(j.data, p);
+	p = strtok(NULL, "@");
+	strcpy(j.ano, p);
+	p = strtok(NULL, "@");
+	strcpy(j.preco, p);
+	p = strtok(NULL, "@");
+	strcpy(j.desconto, p);
+	p = strtok(NULL, "@");
+	strcpy(j.categoria, p);
+
+    return j;
+}
 
 /* Exibe o produto */
 int exibir_registro(int rrn)
 {
-    // if (rrn < 0)
-    //     return 0;
-    // float preco;
-    // int desconto;
-    // Produto j = recuperar_registro(rrn); //todo
-    // char *cat, categorias[TAM_CATEGORIA];
-    // printf("%s\n", j.pk);
-    // printf("%s\n", j.nome);
-    // printf("%s\n", j.marca);
-    // printf("%s\n", j.data);
-    // printf("%s\n", j.ano);
-    // sscanf(j.desconto, "%d", &desconto);
-    // sscanf(j.preco, "%f", &preco);
-    // preco = preco * (100 - desconto);
-    // preco = ((int)preco) / (float)100;
-    // printf("%07.2f\n", preco);
-    // strncpy(categorias, j.categoria, strlen(j.categoria));
-    // for (cat = strtok(categorias, "|"); cat != NULL; cat = strtok(NULL, "|"))
-    //     printf("%s ", cat);
-    // printf("\n");
-    // return 1;
+    if (rrn < 0)
+        return 0;
+    float preco;
+    int desconto;
+    Produto j = recuperar_registro(rrn);
+    char *cat, categorias[TAM_CATEGORIA];
+    printf("%s\n", j.pk);
+    printf("%s\n", j.nome);
+    printf("%s\n", j.marca);
+    printf("%s\n", j.data);
+    printf("%s\n", j.ano);
+    sscanf(j.desconto, "%d", &desconto);
+    sscanf(j.preco, "%f", &preco);
+    preco = preco * (100 - desconto);
+    preco = ((int)preco) / (float)100;
+    printf("%07.2f\n", preco);
+    strcpy(categorias, j.categoria);
+    for (cat = strtok(categorias, "|"); cat != NULL; cat = strtok(NULL, "|"))
+        printf("%s ", cat);
+    printf("\n");
+    return 1;
 }
 
 /* ============================================================================================
@@ -412,6 +445,7 @@ void cadastrar(Hashtable *tabela) {
     inserir_lista(&(tabela->v[posicao]), novo.pk);
     printf(REGISTRO_INSERIDO, novo.pk);
 
+    nregistros++;
     
 }
 
@@ -422,6 +456,7 @@ void inserir_lista(Chave **primeiro, char *chave) {
     if ((*primeiro) == NULL || strcmp((*primeiro)->pk, chave) > 0) {
         Chave *novo = (Chave*) malloc(sizeof(Chave));
         strcpy(novo->pk, chave);
+        novo->rrn = nregistros;
         novo->prox = (*primeiro);
         (*primeiro) = novo;
         return;
@@ -440,6 +475,47 @@ void inserir_lista(Chave **primeiro, char *chave) {
     strcpy(novo->pk, chave);
     novo->prox = aux->prox;
     aux->prox = novo;
+
+
+}
+
+
+/****************************************** BUSCA ***********************************************/
+
+int buscar_lista(Chave **primeiro, char *chave) {
+
+    Chave *aux = *primeiro;
+    while (aux) {
+        if (strcmp(aux->pk, chave) == 0)
+            return aux->rrn;
+        aux = aux->prox;
+    }
+    return -1;
+
+}
+void buscar(Hashtable tabela) {
+
+    // Recebe a chave primária
+    char chave[TAM_PRIMARY_KEY];
+    scanf("%[^\n]s", chave);
+    getchar();
+
+    // Verifica se a tabela não está vazia
+    if (nregistros == 0) {
+        printf(REGISTRO_N_ENCONTRADO);
+        return;
+    }
+
+    int posicao = hash(chave, tabela.tam);
+    int resultadoBusca = buscar_lista(&(tabela.v[posicao]), chave);
+    if (resultadoBusca == -1) {
+        printf(REGISTRO_N_ENCONTRADO);
+        return;
+    }
+    else {
+        exibir_registro(resultadoBusca);
+    }
+
 
 
 }
