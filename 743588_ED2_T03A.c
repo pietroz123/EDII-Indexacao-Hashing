@@ -248,6 +248,11 @@ short hash(const char *chave, int tam) {
     return resultado % tam;
 }
 
+
+/* ============================================================================================
+   ============================= RECUPERAR E EXIBIR REGISTRO ==================================
+   ============================================================================================ */
+
 /* Recupera o registro no ARQUIVO de dados e retorna os dados na struct Produto */
 Produto recuperar_registro(int rrn)
 {
