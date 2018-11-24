@@ -100,10 +100,10 @@ int prox_primo(int a);
 
 //OK
 void liberar_tabela(Hashtable *tabela);
+void cadastrar(Hashtable *tabela);
 
 //todo
 void carregar_tabela(Hashtable *tabela);
-void cadastrar(Hashtable *tabela);
 int alterar(Hashtable tabela);
 void buscar(Hashtable tabela);
 int remover(Hashtable *tabela);
@@ -116,6 +116,9 @@ void criar_tabela(Hashtable *tabela, int tam);
 
 // Impressao da tabela hash
 void imprimir_tabela(Hashtable tabela);
+
+// Insercoes na lista de chaves
+void inserir_lista(Chave *primeiro, char *chave);
 
 
 
@@ -151,7 +154,7 @@ int main()
         switch (opcao) {
 
         case 1:
-            cadastrar(&tabela); //todo
+            cadastrar(&tabela);
             break;
         
         case 2:
@@ -174,7 +177,7 @@ int main()
         
         case 5:
             printf(INICIO_LISTAGEM);
-            imprimir_tabela(tabela);
+            imprimir_tabela(tabela); //todo
             break;
         
         case 6:
@@ -404,6 +407,39 @@ void cadastrar(Hashtable *tabela) {
 	strcat(ARQUIVO, entrada);
 
 
+    int posicao = hash(novo.pk, tabela->tam);
+    printf("posicao: %d\n", posicao);
+    inserir_lista(tabela->v[posicao], novo.pk);
+
     
+
+}
+
+
+void inserir_lista(Chave *primeiro, char *chave) {
+
+    /* Caso lista vazia ou o primeiro ja eh maior que a chave a ser inserida */
+    if ((primeiro) == NULL || strcmp((primeiro)->pk, chave) > 0) {
+        Chave *novo = (Chave*) malloc(sizeof(Chave));
+        strcpy(novo->pk, chave);
+        novo->prox = (primeiro);
+        (primeiro) = novo;
+        return;
+    }
+
+    /* Caso meio da lista */
+    Chave *aux = (primeiro);
+    while (aux->prox && strcmp(aux->prox->pk, chave) < 0)
+        aux = aux->prox;
+    
+    /* Se eh igual nao insere repetido */
+    if (aux->prox && strcmp(aux->pk, chave) == 0)
+        return;
+
+    Chave *novo = (Chave*) malloc(sizeof(Chave));
+    strcpy(novo->pk, chave);
+    novo->prox = aux->prox;
+    aux->prox = novo;
+
 
 }
