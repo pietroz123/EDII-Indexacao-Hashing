@@ -174,7 +174,7 @@ int main()
         
         case 4:
             printf(INICIO_EXCLUSAO);
-            // printf("%s", (remover(&tabela)) ? SUCESSO : FALHA); //todo
+            printf("%s", (remover(&tabela)) ? SUCESSO : FALHA); //todo
             break;
         
         case 5:
@@ -428,20 +428,29 @@ void cadastrar(Hashtable *tabela) {
 	gerar_chave(&novo);
 
 
+    // Verifica se já não existe uma chave igual
+    int posicao = hash(novo.pk, tabela->tam);
+    int resultadoBusca = buscar_lista(&(tabela->v[posicao]), novo.pk);
+    if (resultadoBusca != -1) {
+        printf(ERRO_PK_REPETIDA, novo.pk);
+        return;   
+    }
+
+
     // Coloca os dados na string entrada[]
 	sprintf(entrada, "%s@%s@%s@%s@%s@%s@%s@%s@", novo.pk, novo.nome, novo.marca, novo.data, novo.ano, novo.preco, novo.desconto, novo.categoria);
 
     // Completa os espaços restantes com '#'
     int necessarios = 192 - strlen(entrada);
-    for (int i = 0; i < necessarios; i++)
+    for (int i = 0; i < necessarios; i++) {
         strcat(entrada, "#");
+    }
 
 	// Coloca a entrada no ARQUIVO de dados
 	strcat(ARQUIVO, entrada);
 
 
-    /***** Procura onde inserir *****/
-    int posicao = hash(novo.pk, tabela->tam);
+    /***** Insere na lista da posição encontrada *****/
     inserir_lista(&(tabela->v[posicao]), novo.pk);
     printf(REGISTRO_INSERIDO, novo.pk);
 
@@ -573,6 +582,68 @@ int alterar(Hashtable tabela) {
     p++;
     *p = novoDesconto[2];
  
+    return 1;
+
+}
+
+
+/***************************************** REMOCAO **********************************************/
+
+int remover_lista(Chave **primeiro, char *chave) {
+
+    if ((*primeiro) == NULL)
+        return 0;
+    Chave *atual = *primeiro;
+    Chave *anterior = NULL;
+
+    while (atual) {
+        printf("atual: %s\n", atual->pk);
+        if (strcmp(atual->pk, chave) == 0) {
+            printf("a ser removido: %s\n", atual->pk);
+            // Achou a chave
+            if (atual == *primeiro) {
+                if (atual->prox == NULL) {
+                    free(atual);
+                    *primeiro = NULL;
+                    return 1;
+                }
+                else {
+                    *primeiro = atual->prox;
+                    free(atual);
+                    return 1;
+                }
+            }
+            else {
+                anterior->prox = atual->prox;
+                free(atual);
+                return 1;
+            }
+            anterior = atual;
+            atual = atual->prox;
+        }
+    }
+    return 0;
+
+}
+int remover(Hashtable *tabela) {
+
+    char chave[TAM_PRIMARY_KEY];
+ 
+    // Recebe a chave primária
+    scanf("%[^\n]s", chave);
+    getchar();
+
+
+    // Verifica se o registro existe
+    int posicao = hash(chave, tabela->tam);
+    
+    int resultadoRemocao = remover_lista(&(tabela->v[posicao]), chave);
+    if (resultadoRemocao == 0) {
+        printf(REGISTRO_N_ENCONTRADO);
+        return 0;
+    }
+
+
     return 1;
 
 }
