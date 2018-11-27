@@ -597,9 +597,7 @@ int remover_lista(Chave **primeiro, char *chave) {
     Chave *anterior = NULL;
 
     while (atual) {
-        printf("atual: %s\n", atual->pk);
         if (strcmp(atual->pk, chave) == 0) {
-            printf("a ser removido: %s\n", atual->pk);
             // Achou a chave
             if (atual == *primeiro) {
                 if (atual->prox == NULL) {

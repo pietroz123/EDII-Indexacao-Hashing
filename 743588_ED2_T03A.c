@@ -463,8 +463,9 @@ void cadastrar(Hashtable *tabela) {
 
     // Completa os espaços restantes com '#'
     int necessarios = 192 - strlen(entrada);
-    for (int i = 0; i < necessarios; i++)
+    for (int i = 0; i < necessarios; i++) {
         strcat(entrada, "#");
+    }
 
 	// Coloca a entrada no ARQUIVO de dados
 	strcat(ARQUIVO, entrada);
@@ -573,7 +574,7 @@ void buscar(Hashtable tabela) {
 int alterar(Hashtable tabela) {
 
     char chave[TAM_PRIMARY_KEY];
-    char novoDesconto[TAM_DESCONTO];
+    char novoDesconto[31];
  
     // Recebe a chave primária
     scanf("%[^\n]s", chave);
@@ -593,11 +594,16 @@ int alterar(Hashtable tabela) {
     scanf("%[^\n]s", novoDesconto);
     getchar();
 
+
+
     // Verifica se o novo desconto é válido (está entre 0 e 100), caso contrário pede novamente
-    while (strcmp(novoDesconto, "100") > 0 || strcmp(novoDesconto, "000") < 0) {
+    // int flag = 0;
+    while (strlen(novoDesconto) == 1 || strlen(novoDesconto) == 2 || strcmp(novoDesconto, "100") > 0 || strcmp(novoDesconto, "000") < 0 || strlen(novoDesconto) > 3) {
+        
         printf(CAMPO_INVALIDO);
         scanf("%[^\n]s", novoDesconto);
         getchar();
+
     }
 
 
