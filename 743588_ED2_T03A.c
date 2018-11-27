@@ -441,12 +441,6 @@ void cadastrar(Hashtable *tabela) {
 	gerar_chave(&novo);
 
 
-    // Verifica se a tabela esta cheia. Se estiver, retorna
-    if (nregistros == tabela->tam) {
-        printf(ERRO_TABELA_CHEIA);
-        return;
-    }
-
 
     // Verifica se ja nao existe um registro com a chave primaria gerada (so entra nesse caso se o estado for diferente de REMOVIDO)
     ResultadoBusca resultadoBusca = buscar_posicao(novo.pk, *tabela);
@@ -456,6 +450,21 @@ void cadastrar(Hashtable *tabela) {
             return;
         }
     }
+
+
+
+    /***** Procura onde inserir *****/
+ 
+    int posicao = hash(novo.pk, tabela->tam);
+    int rrn = nregistros;
+    int nColisoes = insere_tabela(tabela, posicao, rrn, novo.pk);
+    if (nColisoes == -1) {
+        printf(ERRO_TABELA_CHEIA);
+        return;
+    }
+    printf(REGISTRO_INSERIDO, novo.pk, nColisoes);
+ 
+
 
 
 	// Coloca os dados na string entrada[]
@@ -469,17 +478,8 @@ void cadastrar(Hashtable *tabela) {
 
 	// Coloca a entrada no ARQUIVO de dados
 	strcat(ARQUIVO, entrada);
-
-
-
-    /***** Procura onde inserir *****/
  
-    int posicao = hash(novo.pk, tabela->tam);
-    int rrn = nregistros;
-    int nColisoes = insere_tabela(tabela, posicao, rrn, novo.pk);
-    printf(REGISTRO_INSERIDO, novo.pk, nColisoes);
- 
- 
+
     nregistros++;
 
 }
@@ -497,8 +497,9 @@ int insere_tabela(Hashtable *tabela, int posicao, int rrn, char *chave) {
         nColisoes++;
         posicao++;
         posicao = posicao % tabela->tam; // Garante a "circularidade"
-        if (posicao == flag)
-            break;
+        if (posicao == flag) {
+            return -1;
+        }
     }
     
     // Marca posicao como ocupada
@@ -521,18 +522,26 @@ ResultadoBusca buscar_posicao(char *chave, Hashtable tabela) {
     // Calcula a posição inicial da busca pela função de hash
     int posicao = hash(chave, tabela.tam);
     int nColisoes = 0;
+    int flag = posicao;
 
     // Continua incrementando a posição até encontrar a chave ou encontrar uma célula LIVRE
     while (tabela.v[posicao].estado != LIVRE) {
         if (strcmp(tabela.v[posicao].pk, chave) == 0) {
             r.posicao = posicao;
-            r.nColisoes = 0;
+            r.nColisoes = nColisoes;
             r.estado = tabela.v[posicao].estado;
             r.rrn = tabela.v[posicao].rrn;
             return r;
         }
         nColisoes++;
-        posicao++;
+        posicao = (posicao+1) % tabela.tam;
+        if (posicao == flag) {
+            r.posicao = posicao;
+            r.nColisoes = nColisoes;
+            r.estado = tabela.v[posicao].estado;
+            r.rrn = -1;
+            return r;
+        }
     }
     // Se saiu do while, não encontrou
     r.posicao = posicao;
