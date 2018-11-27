@@ -20,3 +20,5 @@ diff A.out CasosA/8.out
 diff A.out CasosA/9.out
 (./A < CasosA/10.in) > A.out
 diff A.out CasosA/10.out
+(./A < CasosA/teste_novo_1.in) > A.out
+diff A.out CasosA/teste_novo_1.out
