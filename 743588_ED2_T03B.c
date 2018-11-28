@@ -82,13 +82,13 @@ int nregistros;
  * ========================================================================== */
 
 /* Recebe do usuário uma string simulando o arquivo completo. */
-void carregar_arquivo();
+int carregar_arquivo();
 
 /* Exibe o produto */
 int exibir_registro(int rrn);
 
 /*Função de Hash*/
-short hash(const char *chave, int tam);  //todo
+short hash(const char *chave, int tam);
 
 /*Auxiliar para a função de hash*/
 short f(char x);
@@ -104,8 +104,6 @@ void cadastrar(Hashtable *tabela);
 void buscar(Hashtable tabela);
 int alterar(Hashtable tabela);
 int remover(Hashtable *tabela);
-
-//todo
 void carregar_tabela(Hashtable *tabela);
 
 
@@ -118,7 +116,7 @@ void criar_tabela(Hashtable *tabela, int tam);
 void imprimir_tabela(Hashtable tabela);
 
 // Insercoes na lista de chaves
-void inserir_lista(Chave **primeiro, char *chave);
+void inserir_lista(Chave **primeiro, char *chave, int rrn);
 
 // Busca na lista de chaves
 int buscar_lista(Chave **primeiro, char *chave);
@@ -135,8 +133,8 @@ int main()
     /* Arquivo */
     int carregarArquivo = 0;
     scanf("%d%*c", &carregarArquivo); // 1 (sim) | 0 (nao)
-    // if (carregarArquivo) //todo
-        // carregar_arquivo(); //todo
+    if (carregarArquivo)
+        nregistros = carregar_arquivo();
 
     /* Tabela Hash */
     int tam;
@@ -145,8 +143,8 @@ int main()
 
     Hashtable tabela;
     criar_tabela(&tabela, tam);
-    // if (carregarArquivo) //todo
-    //     carregar_tabela(&tabela); //todo
+    if (carregarArquivo)
+        carregar_tabela(&tabela);
 
     /* Execução do programa */
     int opcao = 0;
@@ -179,7 +177,7 @@ int main()
         
         case 5:
             printf(INICIO_LISTAGEM);
-            imprimir_tabela(tabela); //todo
+            imprimir_tabela(tabela);
             break;
         
         case 6:
@@ -207,9 +205,10 @@ int main()
 
 
 /* Recebe do usuário uma string simulando o arquivo completo. */
-void carregar_arquivo()
+int carregar_arquivo()
 {
     scanf("%[^\n]\n", ARQUIVO);
+    return strlen(ARQUIVO) / TAM_REGISTRO;
 }
 
 
@@ -451,7 +450,8 @@ void cadastrar(Hashtable *tabela) {
 
 
     /***** Insere na lista da posição encontrada *****/
-    inserir_lista(&(tabela->v[posicao]), novo.pk);
+    int rrn = nregistros;
+    inserir_lista(&(tabela->v[posicao]), novo.pk, rrn);
     printf(REGISTRO_INSERIDO, novo.pk);
 
     nregistros++;
@@ -459,13 +459,13 @@ void cadastrar(Hashtable *tabela) {
 }
 
 
-void inserir_lista(Chave **primeiro, char *chave) {
+void inserir_lista(Chave **primeiro, char *chave, int rrn) {
 
     /* Caso lista vazia ou o primeiro ja eh maior que a chave a ser inserida */
     if ((*primeiro) == NULL || strcmp((*primeiro)->pk, chave) > 0) {
         Chave *novo = (Chave*) malloc(sizeof(Chave));
         strcpy(novo->pk, chave);
-        novo->rrn = nregistros;
+        novo->rrn = rrn;
         novo->prox = (*primeiro);
         (*primeiro) = novo;
         return;
@@ -482,7 +482,7 @@ void inserir_lista(Chave **primeiro, char *chave) {
 
     Chave *novo = (Chave*) malloc(sizeof(Chave));
     strcpy(novo->pk, chave);
-    novo->rrn = nregistros;
+    novo->rrn = rrn;
     novo->prox = aux->prox;
     aux->prox = novo;
 
@@ -644,5 +644,22 @@ int remover(Hashtable *tabela) {
 
 
     return 1;
+
+}
+
+
+/* ============================================================================================
+   =============================== INSERCAO COM ARQUIVO INICIAL ===============================
+   ============================================================================================ */
+
+void carregar_tabela(Hashtable *tabela) {
+
+    for (int i = 0; i < nregistros; i++) {
+
+        Produto j = recuperar_registro(i);
+        int posicao = hash(j.pk, tabela->tam);
+        inserir_lista(&(tabela->v[posicao]), j.pk, i);
+
+    }
 
 }

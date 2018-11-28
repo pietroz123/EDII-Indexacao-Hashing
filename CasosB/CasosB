@@ -6,3 +6,11 @@ diff B.out CasosB/1.out
 diff B.out CasosB/2.out
 (./B < CasosB/3.in) > B.out
 diff B.out CasosB/3.out
+(./B < CasosB/4.in) > B.out
+diff B.out CasosB/4.out
+(./B < CasosB/5.in) > B.out
+diff B.out CasosB/5.out
+(./B < CasosB/6.in) > B.out
+diff B.out CasosB/6.out
+(./B < CasosB/7.in) > B.out
+diff B.out CasosB/7.out
