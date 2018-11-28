@@ -592,7 +592,7 @@ int alterar(Hashtable tabela) {
 
     // Busca se existe a chave primaria
     ResultadoBusca resultadoBusca = buscar_posicao(chave, tabela);
-    if (resultadoBusca.rrn == -1) {
+    if (resultadoBusca.rrn == -1 || resultadoBusca.estado == REMOVIDO) {
         // Nao encontrou
         printf(REGISTRO_N_ENCONTRADO);
         return 0;
