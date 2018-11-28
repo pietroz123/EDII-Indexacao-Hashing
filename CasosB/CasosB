@@ -1,0 +1,8 @@
+(./B < CasosB/0.in) > B.out
+diff B.out CasosB/0.out
+(./B < CasosB/1.in) > B.out
+diff B.out CasosB/1.out
+(./B < CasosB/2.in) > B.out
+diff B.out CasosB/2.out
+(./B < CasosB/3.in) > B.out
+diff B.out CasosB/3.out

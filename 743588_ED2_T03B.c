@@ -482,6 +482,7 @@ void inserir_lista(Chave **primeiro, char *chave) {
 
     Chave *novo = (Chave*) malloc(sizeof(Chave));
     strcpy(novo->pk, chave);
+    novo->rrn = nregistros;
     novo->prox = aux->prox;
     aux->prox = novo;
 
