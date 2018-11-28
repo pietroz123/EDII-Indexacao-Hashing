@@ -103,10 +103,10 @@ void liberar_tabela(Hashtable *tabela);
 void cadastrar(Hashtable *tabela);
 void buscar(Hashtable tabela);
 int alterar(Hashtable tabela);
+int remover(Hashtable *tabela);
 
 //todo
 void carregar_tabela(Hashtable *tabela);
-int remover(Hashtable *tabela);
 
 
 /* <<< DECLARE AQUI OS PROTOTIPOS >>> */
@@ -174,7 +174,7 @@ int main()
         
         case 4:
             printf(INICIO_EXCLUSAO);
-            printf("%s", (remover(&tabela)) ? SUCESSO : FALHA); //todo
+            printf("%s", (remover(&tabela)) ? SUCESSO : FALHA);
             break;
         
         case 5:
@@ -617,9 +617,9 @@ int remover_lista(Chave **primeiro, char *chave) {
                 free(atual);
                 return 1;
             }
-            anterior = atual;
-            atual = atual->prox;
         }
+        anterior = atual;
+        atual = atual->prox;
     }
     return 0;
 
